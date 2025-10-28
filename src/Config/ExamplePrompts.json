@@ -1,0 +1,12 @@
+[
+    {
+        "title" : "Pirate-ify",
+        "instructions" : "pirate-ify my highlighted text",
+        "requirements" : "Text must be highlighted"
+    },
+    {
+        "title" : "School Professional Format",
+        "instructions" : "Professionalize my email and ensure it ends with CWID: 8882312 (nextLine) Expected Graduation: May 2029",
+        "requirements" : "the recipient must end with @csu.fullerton.edu email. Must be in an email service website. Must be writing an email."
+    }
+]
