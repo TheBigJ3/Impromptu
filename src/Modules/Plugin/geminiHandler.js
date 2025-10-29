@@ -23,7 +23,6 @@ export async function promptAI() {
         expectedInputs: [
         { type: "text", languages: ["en" /* system prompt */,] },
         { type: "image" },
-        {type: "audio"}
         ],
         expectedOutputs: [
         { type: "text", languages: ["en"] }

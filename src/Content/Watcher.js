@@ -156,7 +156,7 @@ export function extractSelectedTool(text) {
 
 function appendData(context,text)
 {
-  if(!isTextArea){return;}
+  if(!isTextArea()){return;}
   if(context.currentHighlightedText == "")
   {
     if (document.activeElement.isContentEditable) {
@@ -168,7 +168,48 @@ function appendData(context,text)
   
   }
 
+  else if (document.activeElement.isContentEditable) {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+  
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+  
+    // Create a temporary container to safely insert HTML/text
+    const temp = document.createElement("div");
+    temp.innerHTML = text.replace(/\n/g, "<br>"); // preserve line breaks
+  
+    const frag = document.createDocumentFragment();
+    let node;
+    while ((node = temp.firstChild)) {
+      frag.appendChild(node);
+    }
+  
+    range.insertNode(frag);
+  
+    // Move cursor to end of inserted text
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+  else
+  {
+    const start = document.activeElement.selectionStart;
+  const end = document.activeElement.selectionEnd;
+
+  if (start !== null && end !== null && start !== end) {
+     const before = document.activeElement.value.substring(0, start);
+    const after = document.activeElement.value.substring(end);
+    document.activeElement.value = before + text + after;
+
+  
+    const pos = before.length + text.length;
+    document.activeElement.selectionStart = document.activeElement.selectionEnd = pos;
+  }
 }
+  }
+
+
 
 
 

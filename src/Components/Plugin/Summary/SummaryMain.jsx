@@ -56,7 +56,7 @@ export const SummaryMainElement = () => {
         <span className='font-semibold text-[34px] text-black'>Summary</span>
       </h1>
 
-      <div dangerouslySetInnerHTML={{__html: textElement}} className='border-[1px] border-[#D9D9D9] rounded-[8px] bg-[#F9F9F9] flex-1 overflow-auto mt-[10px] text-[12px] text-black p-[10px]'>
+      <div dangerouslySetInnerHTML={{__html: textElement}} className='border-[1px] border-[#D9D9D9] rounded-[8px] bg-[#F9F9F9] flex-1 overflow-auto mt-[10px] text-[12px] text-black p-[10px] max-h-[560px]'>
 
       </div>
     </motion.div>
