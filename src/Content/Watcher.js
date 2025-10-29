@@ -82,7 +82,16 @@ const r = ensureRoot();
 r.render(React.createElement(MainWebInjector));
 
 
-
+function isTextArea()
+{
+    const el = document.activeElement;
+    const isInTextbox =
+      el.isContentEditable ||
+      el.tagName === "INPUT" ||
+      el.tagName === "TEXTAREA";
+  
+    return(isInTextbox);
+  }
 
 function base64ToBlob(base64, mimeType = "image/png") {
   const byteString = atob(base64.split(",")[1]);
@@ -106,8 +115,16 @@ export function extractSelectedTool(text) {
     }
   }
       const match = text.match(/"selected_tool"\s*:\s*"([^"]+)"/);
+      const match2 = text.match(/"Use_summarizer"\s*:\s*"([^"]+)"/);
+      
+      
+      
+      
+      
+      
+      
       if (match) {
-        return match[1]; 
+        return [match2[1].toLowerCase().trim(), match[1]]; 
       }
       
       return " "; 
@@ -137,6 +154,21 @@ export function extractSelectedTool(text) {
 }
 
 
+function appendData(context,text)
+{
+  if(!isTextArea){return;}
+  if(context.currentHighlightedText == "")
+  {
+    if (document.activeElement.isContentEditable) {
+      document.activeElement.innerText += text; 
+    } else {
+
+      document.activeElement.value += text;
+    }
+  
+  }
+
+}
 
 
 
@@ -158,8 +190,8 @@ document.addEventListener("keydown", async (event) => {
         });
       });
     } catch (err) {
-      console.error("❌ Failed to capture image:", err);
-      alert("❌ Failed to capture image: " + err);
+      console.error(" Failed to capture image:", err);
+      alert("Failed to capture image: " + err);
       return;
     }
 
@@ -251,9 +283,13 @@ document.addEventListener("keydown", async (event) => {
 
   That JSON should be structured as:
 
+  Summarizer is a tool that will display text on screen. If a user is requesting insight or information than the summarizer may be useful. 
+  However, if a user is requesting specific text such as code or email than summarizer can be set to false.
+
   {
   "selected_tool": "<TITLE of the chosen Tool Card>",
   "runner_ups": ["<TITLE of second best>", "<TITLE of third best>"]
+  "Use_summarizer": "True or False"
   }
 
   If none of the tools fit, output:
@@ -289,10 +325,10 @@ document.addEventListener("keydown", async (event) => {
 
   Now produce the reasoning and final JSON result as instructed above.`;
     //SummaryMain.setText("HELLO");
-    SummaryMain.show();
+    
 
     try {
-      console.log("🧠 Sending prompt with image...");
+      console.log(" Sending prompt with image...");
       const res = await session.promptStreaming(
         [
           {
@@ -300,7 +336,7 @@ document.addEventListener("keydown", async (event) => {
             content: [
               {
                 type: "image",
-                value: fein, // ✅ raw bytes
+                value: fein, 
               },
               {
                 type: "text",
@@ -317,7 +353,7 @@ document.addEventListener("keydown", async (event) => {
       for await (const chunk of res) {
         t += chunk;
         console.log(t);
-        SummaryMain.setText(t);
+
       }
 
       console.log("Stream completed successfully");
@@ -329,8 +365,8 @@ document.addEventListener("keydown", async (event) => {
 
       console.log(res);
 const selected_tool = extractSelectedTool(t);
-const tool_info = getToolInfo(ExamplePrompts, selected_tool);
-console.log("Selected tool:", selected_tool);
+const tool_info = getToolInfo(ExamplePrompts, selected_tool[1]);
+console.log(currentContext);
 console.log("Tool info:", tool_info);
 console.log(`${session.inputUsage}/${session.inputQuota}`);
 
@@ -376,6 +412,27 @@ ${JSON.stringify(tool_info, null, 2)}
 
 
   console.log(tool_res);
+  console.log(selected_tool[0]);
+
+
+  if(selected_tool[0] === "true")
+  {
+    SummaryMain.show()
+    SummaryMain.setText(tool_res)
+  }
+  else if(selected_tool[0] == "true" && isTextArea())
+  {
+    appendData(currentContext, tool_res);
+  }
+  else if(selected_tool[0] == "false" && !isTextArea())
+  {
+    SummaryMain.show()
+    SummaryMain.setText(tool_res)
+  }
+  else
+  {
+    appendData(currentContext, tool_res); 
+  }
     } catch (err) {
       console.error("Error during promptStreaming:", err);
       SummaryMain.setText(err);
