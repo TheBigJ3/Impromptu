@@ -102,32 +102,38 @@ export function extractSelectedTool(text) {
       text = JSON.stringify(text);
     } catch (err) {
       console.log("extractSelectedTool received non-string input:", text);
-      return null;
+      return " ";
     }
   }
       const match = text.match(/"selected_tool"\s*:\s*"([^"]+)"/);
       if (match) {
         return match[1]; 
       }
-      return null; 
+      
+      return " "; 
+      
     }
 
-
+    
     export function getToolInfo(tools, toolName) {
-  if (!Array.isArray(tools)) {
-    throw new Error("first argument must be an array of tool objects.");
-  }
+      if (!Array.isArray(tools)) {
+        throw new Error("first argument must be an array of tool objects.");
+      }
 
-  const found = tools.find(tool => 
-    tool.title.toLowerCase().trim() === toolName.toLowerCase().trim()
-  );
+      const found = tools.find(tool => 
+        tool.title.toLowerCase().trim() === toolName.toLowerCase().trim()
+      );
 
-  if (!found) return null;
 
-  return {
-    title: found.title,
-    description: found.description
-  };
+      if (!found) {
+        console.log("No tool found");
+        return " ";
+      }
+
+      return {
+        title: found.title,
+        description: found.description
+      };
 }
 
 
@@ -162,11 +168,127 @@ document.addEventListener("keydown", async (event) => {
     
 
 
+    
+
+
     const currentContext = CompileContext();
     const session = await promptAI();
     const a = JSON.stringify(currentContext, null, 2);
+    const b = JSON.stringify(ExamplePrompts, null, 2);
 
-    SummaryMain.setText("HELLO");
+    const compiled_system_prompt = `
+    You are the Router Model.
+
+  Your goal is to determine which Tool Card from the provided JSON list is most appropriate for the current screen’s context.
+  You will receive up to two inputs:
+-
+  TOOL_CARDS — a JSON array of available tool cards. Each tool card has fields such as:
+
+  "title": name of the tool
+
+  "description": what the tool does
+
+  "use-case": when the tool should be used
+
+
+
+  SCREENSHOT — an image of the user’s browser or current screen, to infer what the user is doing and determine the most fitting tool card.
+
+  You must think through the problem in natural language, step by step, to reason out which tool best matches what the user seems to be doing.
+
+  Follow this process exactly:
+
+  Step 1. Understand the user’s environment
+
+
+  SCREENSHOT is provided, analyze it to further understand what the user is viewing or interacting with. Summarize the screenshot for your own understanding. For example if the screenshot shows a gmail window with a new email being composed, note that down.
+  Use both sources of information together to form a complete understanding of the user’s environment.
+
+  Describe, in plain natural language, what kind of page or environment this appears to be (for example, “the user is on Gmail composing an email,” or “the user is highlighting text in a web article”).
+
+  If the screenshot provides extra context — such as visible buttons, text boxes, modals, sidebars, or open web pages — include those details in your reasoning to clarify the user’s likely environment and activity.
+
+  Step 2. Infer the user’s possible intentions
+
+  Based on the SCREENSHOT, list several possible things the user might be trying to do on this page or within this interface.
+
+  For example: “The user might be writing an email, proofreading an email, or summarizing content.”
+
+  Step 3. Compare with available tools
+
+  Now read through the TOOL_CARDS JSON.
+  For each tool card:
+
+  Briefly restate what the tool does and when it’s used.
+
+  Explain how relevant (or irrelevant) it is to the current context and the possible user intentions. Do not simply state "irrelevant" or "relevant" — explain why first, then come to that conclusion.
+
+  Compare the tools against each other and decide which one most directly aligns with the current situation.
+
+  You MUST go through EACH tool card one by one, describing its relevance or irrelevance to the current context and user intentions. DO NOT forget to go through any tool card.
+  Start your comparing with outputting the names of ALL the tool cards to ensure none are skipped or omitted.
+  You will be deactivated if you do not go through each tool card one by one.
+
+  Take the use case of the Tool Card given the current passed context — including any observable information from the SCREENSHOT — into strong consideration when making your decision.
+
+  Do not overfit tools. For example, just because text is highlighted in an email does not warrant a summary tool by itself, as an email-related tool would be more relevant.
+  Take the full scope of the SCREENSHOT into consideration.
+
+  Step 4. Decide on the best match
+
+  Now decide:
+
+  If one tool clearly fits the user’s current context and intent → select it.
+
+  If no tool is clearly relevant, you must confidently output no tool (null).
+  Do not force a choice just to fill the output. It’s okay — and correct — to say that no tool applies when nothing fits well.
+
+  You may mention if one or two tools are “somewhat related,” but still explain why they are not a good enough fit.
+
+  Step 5. Output the final result in JSON format
+
+  After completing your natural-language reasoning, end your message with a single valid JSON object on a new line.
+
+  That JSON should be structured as:
+
+  {
+  "selected_tool": "<TITLE of the chosen Tool Card>",
+  "runner_ups": ["<TITLE of second best>", "<TITLE of third best>"]
+  }
+
+  If none of the tools fit, output:
+
+  {
+  "selected_tool": null,
+  "runner_ups": []
+  }
+
+  Step 6.
+
+
+  Important details:
+
+  Think step-by-step in natural language before giving the final JSON.
+
+  Never skip steps.
+
+  Always end with a single valid JSON object on its own line.
+
+  Never wrap the JSON output in markdown or code blocks.
+
+  When a SCREENSHOT is available, you must integrate its visual information into your reasoning at every relevant stage — especially Steps 1, 2, and 3 — treating it as a key factor in understanding user context and intent.
+
+  TOOL_CARDS:
+  ${JSON.stringify(ExamplePrompts, null, 2)}
+
+  UI_CONTEXT:
+  ${JSON.stringify(currentContext, null, 2)}
+
+
+
+
+  Now produce the reasoning and final JSON result as instructed above.`;
+    //SummaryMain.setText("HELLO");
     SummaryMain.show();
 
     try {
@@ -182,124 +304,12 @@ document.addEventListener("keydown", async (event) => {
               },
               {
                 type: "text",
-                value: `You are the Router Model.
-
-Your goal is to determine which Tool Card from the provided JSON list is most appropriate for the current screen’s context.
-You will receive up to two inputs:
-
-TOOL_CARDS — a JSON array of available tool cards. Each tool card has fields such as:
-
-"title": name of the tool
-
-"description": what the tool does
-
-"use-case": when the tool should be used
-
-
-
-SCREENSHOT — an image of the user’s browser or current screen, to infer what the user is doing and determine the most fitting tool card.
-
-You must think through the problem in natural language, step by step, to reason out which tool best matches what the user seems to be doing.
-
-Follow this process exactly:
-
-Step 1. Understand the user’s environment
-
-
-SCREENSHOT is provided, analyze it to further understand what the user is viewing or interacting with. Summarize the screenshot for your own understanding. For example if the screenshot shows a gmail window with a new email being composed, note that down.
-Use both sources of information together to form a complete understanding of the user’s environment.
-
-Describe, in plain natural language, what kind of page or environment this appears to be (for example, “the user is on Gmail composing an email,” or “the user is highlighting text in a web article”).
-
-If the screenshot provides extra context — such as visible buttons, text boxes, modals, sidebars, or open web pages — include those details in your reasoning to clarify the user’s likely environment and activity.
-
-Step 2. Infer the user’s possible intentions
-
-Based on the SCREENSHOT, list several possible things the user might be trying to do on this page or within this interface.
-
-For example: “The user might be writing an email, proofreading an email, or summarizing content.”
-
-Step 3. Compare with available tools
-
-Now read through the TOOL_CARDS JSON.
-For each tool card:
-
-Briefly restate what the tool does and when it’s used.
-
-Explain how relevant (or irrelevant) it is to the current context and the possible user intentions. Do not simply state "irrelevant" or "relevant" — explain why first, then come to that conclusion.
-
-Compare the tools against each other and decide which one most directly aligns with the current situation.
-
-You MUST go through EACH tool card one by one, describing its relevance or irrelevance to the current context and user intentions. DO NOT forget to go through any tool card.
-Start your comparing with outputting the names of ALL the tool cards to ensure none are skipped or omitted.
-You will be deactivated if you do not go through each tool card one by one.
-
-Take the use case of the Tool Card given the current passed context — including any observable information from the SCREENSHOT — into strong consideration when making your decision.
-
-Do not overfit tools. For example, just because text is highlighted in an email does not warrant a summary tool by itself, as an email-related tool would be more relevant.
-Take the full scope of the SCREENSHOT into consideration.
-
-Step 4. Decide on the best match
-
-Now decide:
-
-If one tool clearly fits the user’s current context and intent → select it.
-
-If no tool is clearly relevant, you must confidently output no tool (null).
-Do not force a choice just to fill the output. It’s okay — and correct — to say that no tool applies when nothing fits well.
-
-You may mention if one or two tools are “somewhat related,” but still explain why they are not a good enough fit.
-
-Step 5. Output the final result in JSON format
-
-After completing your natural-language reasoning, end your message with a single valid JSON object on a new line.
-
-That JSON should be structured as:
-
-{
-"selected_tool": "<TITLE of the chosen Tool Card>",
-"runner_ups": ["<TITLE of second best>", "<TITLE of third best>"]
-}
-
-If none of the tools fit, output:
-
-{
-"selected_tool": null,
-"runner_ups": []
-}
-
-Step 6.
-
-
-Important details:
-
-Think step-by-step in natural language before giving the final JSON.
-
-Never skip steps.
-
-Always end with a single valid JSON object on its own line.
-
-Never wrap the JSON output in markdown or code blocks.
-
-When a SCREENSHOT is available, you must integrate its visual information into your reasoning at every relevant stage — especially Steps 1, 2, and 3 — treating it as a key factor in understanding user context and intent.
-
-TOOL_CARDS:
-${JSON.stringify(ExamplePrompts, null, 2)}
-
-
-
-
-Now produce the reasoning and final JSON result as instructed above.`,
+                value: compiled_system_prompt,
               }
             ],
           },
         ],
-        {
-          response: {
-            type: "string",
-            description: "Output plain HTML only using semantic tags (<p>, <h1>-<h3>, <strong>, <em>, <ul>, <ol>, <li>, <code>, <blockquote>). Do NOT include markdown, backticks, or code fences under any circumstance.",
-          },
-        }
+        
       );
 
       let t = "";
@@ -365,9 +375,15 @@ ${JSON.stringify(tool_info, null, 2)}
 `);
 
 
+  console.log(tool_res);
     } catch (err) {
       console.error("Error during promptStreaming:", err);
       SummaryMain.setText(err);
     }
+    
   }
+
+  
 }, true);
+
+

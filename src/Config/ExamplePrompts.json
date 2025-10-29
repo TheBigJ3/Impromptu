@@ -1,12 +1,98 @@
 [
-    {
-        "title" : "Pirate-ify",
-        "instructions" : "pirate-ify my highlighted text",
-        "requirements" : "Text must be highlighted"
-    },
-    {
-        "title" : "School Professional Format",
-        "instructions" : "Professionalize my email and ensure it ends with CWID: 8882312 (nextLine) Expected Graduation: May 2029",
-        "requirements" : "the recipient must end with @csu.fullerton.edu email. Must be in an email service website. Must be writing an email."
-    }
+  {
+    "title": "Pirate-ify",
+    "description": "pirate-ify my highlighted text",
+    "use-case": "I must have text highlighted"
+  },
+  {
+    "title": "Formal Format",
+    "description": "Professionalize my email and ensure it ends with CWID: 8882312 (nextLine) Expected Graduation: May 2029",
+    "use-case": "when wanting to send an email"
+  },
+{
+    "title": "Professional Format",
+    "description": "Professionalize my email and ensure it ends with CWID: 8882312 (nextLine) Expected Graduation: May 2029",
+    "use-case": "when wanting to send an email specifically to email addresses including ‘@csu’ "
+  },
+
+  {
+    "title": "Summarize It",
+    "description": "Summarize my highlighted text into 3–4 concise bullet points",
+    "use-case": "when reviewing or condensing articles, notes, or long emails"
+  },
+  {
+    "title": "Explain Like I’m 5",
+    "description": "Simplify my highlighted text so it’s understandable by a beginner or a 5-year-old",
+    "use-case": "when learning new or complex material"
+  },
+  {
+    "title": "Polish My Code Comment",
+    "description": "Rewrite my highlighted comment or docstring to be cleaner, more professional, and clear",
+    "use-case": "When I have code comments highlighted. The highlighted text should clearly look like a code comment, and even if it looks complete enough, use this tool and polish the highlighted code comment."
+  },
+  {
+    "title": "TL;DR Email",
+    "description": "Summarize the email thread into a single short paragraph labeled 'TL;DR:'",
+    "use-case": "when reading long email threads"
+  },
+  {
+    "title": "Tone Matcher",
+    "description": "Rewrite my highlighted text to match a specific tone (friendly, assertive, academic, etc.)",
+    "use-case": "when adjusting tone for different audiences"
+  },
+  {
+    "title": "Bug Report Formatter",
+    "description": "Format my highlighted text into a clean bug report with sections: Steps to Reproduce, Expected Behavior, Actual Behavior",
+    "use-case": "when reporting issues in projects"
+  },
+  {
+    "title": "Study Flashcards",
+    "description": "Convert my highlighted notes into Q&A flashcards",
+    "use-case": "when studying or preparing for exams"
+  },
+  {
+    "title": "Refactor Suggestion",
+    "description": "Analyze my highlighted code and suggest a cleaner or more efficient version",
+    "use-case": "when reviewing or improving code"
+  },
+  {
+    "title": "Email Reply Draft",
+    "description": "Draft a polite, professional reply to the highlighted email",
+    "use-case": "when responding to received messages"
+  },
+  {
+    "title": "Formal Summary Report",
+    "description": "Reformat my highlighted notes into a formal summary with headers and bullet points",
+    "use-case": "when submitting school or project reports"
+  }, 
+  {
+      "title": "HTML",
+      "description": "Convert the natural language description into HTML code. Please provide only the HTML code without any extra content, comments, or markdown: 'Create a header with the title 'Welcome to My Website.' 'Add a navigation bar with links to Home, About, and Contact.' 'Insert an image of a sunset with an alt text of 'Beautiful Sunset.' 'Make a footer that includes copyright information.' 'Create a section that contains three articles with headings and paragraphs.' 'Add an unordered list of hobbies.",
+      "use-case": "When im on sites where code development usually happens, and im describing my code in natural language, where I want to convert it to HTML"
+  }, 
+  {
+      "title": "CSS",
+      "description": "Convert the HTML code into CSS code. Please provide only the CSS code without any extra content, comments, or markdown: 'Set the background color of the body to blue.' 'Make all headings center aligned.' 'Add a margin of 20 pixels to paragraphs.' 'Change the font size of buttons to 16 pixels.' 'Apply a border of 1 pixel solid black to images.' 'Set the text color to white for all list items.'",
+      "use-case": "When im on sites where code development usually happens, and i have some HTML code in the selected text/inputbox, where I want to convert it to CSS. This tool ONLY runs when I am working with real HTML code."
+  }, 
+  {
+      "title": "JavaScript",
+      "description": "Convert the following natural language description into JavaScript code. Please provide only the JavaScript code without any extra content, comments, or markdown: 'Create a function that returns the square of a number.' 'Define a variable to store your favorite color.' 'Write a loop that counts from 1 to 10 and prints each number.' 'Make an array of fruits and log the second fruit.' 'Create an object to represent a car with properties for make and model.' 'Implement a function that checks if a number is even or odd.'",
+      "use-case": "When im on sites where code development usually happens, and im describing my code in natural language, where I want to convert it to JavaScript"
+  }, 
+  {
+    "title": "Complete email draft",
+    "description": "Take the brief description of what im writing as an emai, and expand/complete/write the full email. Also make sure you include the name of the email receipent somewhere in there. ",
+    "use-case": "When im writing emails, and I simply write the brief idea of what I want my email to be about"
+  }, 
+  {
+"title": "Complete my code function",
+    "description": "Reads my highlighted code function and complete the code for it, paying attention to the programming language and writing code in the appropriate language.",
+    "use-case": "Runs when I have highlighted a programming function and when I am in programming IDE’s. This tool SHOULD be used when my highlighted code does not contain the contents of the function, so in other words, only when my highlighted code function is ONLY the function name, with the contents waiting to be programmed and added."
+  }
 ]
+
+
+
+
+

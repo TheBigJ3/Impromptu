@@ -28,7 +28,7 @@ export async function promptAI() {
         expectedOutputs: [
         { type: "text", languages: ["en"] }
         ],
-        temperature: .2,
+        temperature: 0.7,
 
         topK: params.defaultTopK,
     });
