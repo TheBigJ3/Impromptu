@@ -122,6 +122,7 @@ export function extractSelectedTool(text) {
   }
       const match = text.match(/"selected_tool"\s*:\s*"([^"]+)"/);
       const match2 = text.match(/"Use_summarizer"\s*:\s*"([^"]+)"/);
+      const match3 = text.match(/"Vector_Search"\s*:\s*"([^"]+)"/);
       
       
       
@@ -130,7 +131,8 @@ export function extractSelectedTool(text) {
       
       
       if (match) {
-        return [match2[1].toLowerCase().trim(), match[1]]; 
+        alert(match3[1]);
+        return [match2[1].toLowerCase().trim(), match[1], match3[1]]; 
       }
       
       return " "; 
@@ -350,6 +352,7 @@ document.addEventListener("keydown", async (event) => {
   "selected_tool": "<TITLE of the chosen Tool Card>",
   "runner_ups": ["<TITLE of second best>", "<TITLE of third best>"]
   "Use_summarizer": "True or False"
+  "Vector_Search": "<A bunch of keywords that may help in a vector search to find related html elements>"
   }
 
   If none of the tools fit, output:
@@ -425,7 +428,7 @@ document.addEventListener("keydown", async (event) => {
 
       console.log(res);
 const selected_tool = extractSelectedTool(t);
-const tool_info = getToolInfo(ExamplePrompts, selected_tool[1]);
+const tool_info = getToolInfo(ExamplePrompts, selected_tool[2]);
 console.log(currentContext);
 console.log("Tool info:", tool_info);
 console.log(`${session.inputUsage}/${session.inputQuota}`);
