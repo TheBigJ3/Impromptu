@@ -24,7 +24,7 @@
 
   "web_accessible_resources": [
     {
-      "resources": ["Icons/*"],
+      "resources": ["Icons/*","Logo/*"],
       "matches": ["<all_urls>"]
     }
   ],

@@ -11,6 +11,7 @@ import MainWebInjectorCss from "../Components/Plugin/MainWebInjector.css?inline"
 import getPrompts from "../Modules/Plugin/getPrompts";
 import React from "react";
 import SummaryMain from "../Components/Plugin/Summary/SummaryMain";
+import LoadingAnimation from "../Components/Global/LoadingAnimation";
 
 export function summarizeElementsForAI(hits, currentContext, maxLabel = 60) {
   return hits.map(r => {
@@ -228,6 +229,7 @@ document.addEventListener("keydown", async (event) => {
     console.log("⌘ + ; pressed — requesting screenshot");
 
     // --- Take Screenshot ---
+    
     let base64Data = "";
     try {
       base64Data = await new Promise((resolve, reject) => {
@@ -246,6 +248,7 @@ document.addEventListener("keydown", async (event) => {
     }
 
     let fein = base64ToBlob(base64Data);
+    LoadingAnimation.show();
 
     
 
@@ -389,6 +392,7 @@ document.addEventListener("keydown", async (event) => {
 
     try {
       console.log(" Sending prompt with image...");
+      
       const res = await session.promptStreaming(
         [
           {
@@ -508,7 +512,7 @@ ${JSON.stringify(tool_info, null, 2)}
     }
     
   }
-
+  LoadingAnimation.hide();
   
 }, true);
 
