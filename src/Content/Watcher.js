@@ -378,13 +378,12 @@ document.addEventListener(
   Summarizer is a tool that will display text on screen. If a user is requesting insight or information than the summarizer may be useful. 
   However, if a user is requesting specific text such as code or email than summarizer can be set to false.
 
-  Vector_Search is a property in the result that you must ALWAYS use, this is not optional. This is a string where you will describe what elements to search for on the page to get relevant information for the tool to use, include html tags and key words. Use the title to also help you come up with relevant search terms.
-
+  Vector_Search is a property in the result that you must ALWAYS use (MINIMUM 10 WORDS!), this is not optional. This is a string with keywords that relevant elements probably have, for example if its an article about Donald Trumps peace negotiation some keywords can be "Donald, Trump, Peace, Negotiation, Deal, Result, Requirements" try to make up keywords and use the title to your advantage.
   {
   "selected_tool": "<TITLE of the chosen Tool Card>",
   "runner_ups": ["<TITLE of second best>", "<TITLE of third best>"]
   "Use_summarizer": "True or False"
-  "Vector_Search": "<String a string of element tags and relevant key words to search for CANNOT BE EMPTY PLEASE ALWAYS USE THIS FIELD>",
+  "Vector_Search": "<String MINIMUM 10 WORDS DO NOT REPEAT WORDS>",
   "Vector_SearchAmount": <String how many elements (over estimate is better than underestimate) for example to get all the span tags of a page use "100">
   }
 
