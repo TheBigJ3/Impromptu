@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react'
-import CreatePopupMain from '../Components/Website/CreatePopup/CreatePopupMain'
+import React, { useEffect, useState } from 'react'
+import CreatePopupMain, { getAllPopups } from '../Components/Website/CreatePopup/CreatePopupMain'
 import ToolCard from '../Components/Website/Home/ToolCard'
+
+const STORAGE_KEY = "Popups"
 
 function getPosition(index) {
   const yPattern = [0, -40, -62, -40, 0];
@@ -15,14 +17,27 @@ function getPosition(index) {
 }
 
 const Home = () => {
+    const [Prompts, setPrompts] = useState([])
+
+    useEffect(() => {
+      const fetchData = async () => {
+        const obj = await getAllPopups();
+        setPrompts(Object.values(obj)); 
+      }
+
+      fetchData()
+    }, [])
+    
+
     return (
         <div className='relative mt-[100px] grid grid-cols-5 space-y-10 hide-scrollbar'>
 
-            {Array.from({length:50}).map((_,i) => {
+            {Prompts.map((v,i) => {
                 const {yOffset,rotation} = getPosition(i%5)
+                console.log(v)
                 return (
                 <div style={{rotate: `${rotation}deg`, transform: `translateY(${yOffset}px)`}} className='flex items-center justify-center toolcardWrapper'>
-                    <ToolCard/>
+                    <ToolCard BoxColor={v?.BoxColor} Title={v?.Title}/>
                 </div>
                 )
             })}

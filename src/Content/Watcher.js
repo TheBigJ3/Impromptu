@@ -8,7 +8,7 @@ import ExamplePrompts from "../Config/ExamplePrompts.json" assert { type: 'json'
 import { createRoot } from "react-dom/client";
 import MainWebInjector from "../Components/Plugin/MainWebInjector";
 import MainWebInjectorCss from "../Components/Plugin/MainWebInjector.css?inline";
-
+import getPrompts from "../Modules/Plugin/getPrompts";
 import React from "react";
 import SummaryMain from "../Components/Plugin/Summary/SummaryMain";
 
@@ -60,21 +60,27 @@ const schema = {
 
 let root, container;
 function ensureRoot() {
-  if (root) return root;
-  const style = document.createElement("style");
-  style.textContent = MainWebInjectorCss;
-  document.head.appendChild(style);
+  const host = document.createElement("div");
+  host.id = "imprompto-host";
+  host.style.position = "fixed";
+  host.style.inset = "0"; 
+  host.style.zIndex = "2147483647"; 
+  host.style.pointerEvents = "none";
+  document.documentElement.appendChild(host);
 
-  const el = document.createElement("div");
-  el.id = "imprompto-root";
-  el.style.position = "fixed";
-  el.style.top = "0";
-  el.style.left = "0";
-  el.style.zIndex = "2147483647";
-  el.style.pointerEvents = "none"
-  document.body.appendChild(el);
+  const shadow = host.attachShadow({ mode: "open" });
 
-  root = createRoot(el);
+  const styleEl = document.createElement("style");
+  styleEl.textContent = MainWebInjectorCss; 
+  shadow.appendChild(styleEl);
+
+  container = document.createElement("div");
+  container.id = "imprompto-root";
+  shadow.appendChild(container);
+
+  // 5) Mount React
+  root = createRoot(container);
+
   return root;
 }
 
@@ -154,61 +160,64 @@ export function extractSelectedTool(text) {
 }
 
 
-function appendData(context,text)
-{
-  if(!isTextArea()){return;}
-  if(context.currentHighlightedText == "")
-  {
-    if (document.activeElement.isContentEditable) {
-      document.activeElement.innerText += text; 
-    } else {
+function appendData(context, text) {
+  if (!isTextArea()) return false;
 
-      document.activeElement.value += text;
+  const el = document.activeElement;
+
+  // No highlighted text — simple append
+  if (context.currentHighlightedText === "") {
+    if (el.isContentEditable) {
+      const before = el.innerText;
+      el.innerText += text;
+      return el.innerText.includes(before + text);
+    } else if (el.value !== undefined) {
+      const before = el.value;
+      el.value += text;
+      return el.value.includes(before + text);
     }
-  
+    return false;
   }
 
-  else if (document.activeElement.isContentEditable) {
+  // Contenteditable with highlighted text
+  else if (el.isContentEditable) {
     const selection = window.getSelection();
-    if (!selection.rangeCount) return;
-  
+    if (!selection.rangeCount) return false;
+
     const range = selection.getRangeAt(0);
     range.deleteContents();
-  
-    // Create a temporary container to safely insert HTML/text
+
     const temp = document.createElement("div");
-    temp.innerHTML = text.replace(/\n/g, "<br>"); // preserve line breaks
-  
+    temp.innerHTML = text.replace(/\n/g, "<br>");
+
     const frag = document.createDocumentFragment();
     let node;
-    while ((node = temp.firstChild)) {
-      frag.appendChild(node);
-    }
-  
+    while ((node = temp.firstChild)) frag.appendChild(node);
+
     range.insertNode(frag);
-  
-    // Move cursor to end of inserted text
     range.collapse(false);
     selection.removeAllRanges();
     selection.addRange(range);
+
+    return el.innerText.includes(text);
   }
-  else
-  {
-    const start = document.activeElement.selectionStart;
-  const end = document.activeElement.selectionEnd;
 
-  if (start !== null && end !== null && start !== end) {
-     const before = document.activeElement.value.substring(0, start);
-    const after = document.activeElement.value.substring(end);
-    document.activeElement.value = before + text + after;
+  // Textarea or input with selected text
+  else if (el.selectionStart !== null && el.selectionEnd !== null) {
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const before = el.value.substring(0, start);
+    const after = el.value.substring(end);
 
-  
+    el.value = before + text + after;
     const pos = before.length + text.length;
-    document.activeElement.selectionStart = document.activeElement.selectionEnd = pos;
-  }
-}
+    el.selectionStart = el.selectionEnd = pos;
+
+    return el.value.includes(text);
   }
 
+  return false;
+}
 
 
 
@@ -242,12 +251,22 @@ document.addEventListener("keydown", async (event) => {
 
 
     
+    const userPrompts = await getPrompts();
+      console.log("User Prompts:", userPrompts);
+      let promptToJson = "";
+      for(const prompts of userPrompts)
+      {
+        promptToJson += JSON.stringify(prompts);
+      }
+
+
+      console.log(promptToJson)
 
 
     const currentContext = CompileContext();
     const session = await promptAI();
     const a = JSON.stringify(currentContext, null, 2);
-    const b = JSON.stringify(ExamplePrompts, null, 2);
+    const b = JSON.stringify(promptToJson, null, 2);
 
     const compiled_system_prompt = `
     You are the Router Model.
@@ -356,7 +375,7 @@ document.addEventListener("keydown", async (event) => {
   When a SCREENSHOT is available, you must integrate its visual information into your reasoning at every relevant stage — especially Steps 1, 2, and 3 — treating it as a key factor in understanding user context and intent.
 
   TOOL_CARDS:
-  ${JSON.stringify(ExamplePrompts, null, 2)}
+  ${JSON.stringify(promptToJson, null, 2)}
 
   UI_CONTEXT:
   ${JSON.stringify(currentContext, null, 2)}
@@ -463,7 +482,12 @@ ${JSON.stringify(tool_info, null, 2)}
   }
   else if(selected_tool[0] == "true" && isTextArea())
   {
-    appendData(currentContext, tool_res);
+    if(appendData(currentContext, tool_res))
+    {
+    SummaryMain.show()
+    SummaryMain.setText(tool_res)
+    };
+    
   }
   else if(selected_tool[0] == "false" && !isTextArea())
   {
@@ -472,7 +496,11 @@ ${JSON.stringify(tool_info, null, 2)}
   }
   else
   {
-    appendData(currentContext, tool_res); 
+    if(appendData(currentContext, tool_res))
+    {
+    SummaryMain.show()
+    SummaryMain.setText(tool_res)
+    };
   }
     } catch (err) {
       console.error("Error during promptStreaming:", err);

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import TitleLoadingAnimation from "./Components/Global/TitleLoadingAnimation";
 import Navbar from "./Components/Website/Global/Navbar";
@@ -5,7 +6,15 @@ import { motion } from "motion/react";
 import { Outlet } from "react-router-dom";
 
 function App() {
-  const [AnimationFinished, setAnimationFinished] = useState(false);
+  const skipAnimation = new URLSearchParams(window.location.search).get("noAnimation") === "true";
+  if (skipAnimation && !window.__skipAnimationHandled) {
+    window.__skipAnimationHandled = true;
+    setTimeout(() => {
+      if (typeof setAnimationFinished === "function") setAnimationFinished(true);
+    }, 0);
+  }
+
+  const [AnimationFinished, setAnimationFinished] = useState(window.__skipAnimationHandled || false);
 
   if (!AnimationFinished)
     return (

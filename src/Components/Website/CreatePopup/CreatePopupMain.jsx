@@ -132,6 +132,7 @@ const CreatePopupMain = () => {
     };
 
     await chrome.storage.local.set({ [STORAGE_KEY]: popups });
+    window.location.href = "?noAnimation=true"
     closePopup()
   }
 
