@@ -4,9 +4,9 @@ Impromptu is a Chrome extension powered by Google’s built-in AI Prompt API. It
 
 Setup Instructions
 
-Clone or download the repository
-git clone https://github.com/
-<your-username>/impromptu.git
+Clone or download the repository from the master branch
+
+
 cd impromptu
 
 Install dependencies
